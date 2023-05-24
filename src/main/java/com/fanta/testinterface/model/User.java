@@ -1,5 +1,6 @@
 package com.fanta.testinterface.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
