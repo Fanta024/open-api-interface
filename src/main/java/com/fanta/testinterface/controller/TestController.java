@@ -1,7 +1,7 @@
 package com.fanta.testinterface.controller;
 
-import com.fanta.testinterface.model.User;
-import com.fanta.testinterface.utils.SignUtils;
+import com.fanta.fantaclientsdk.model.User;
+import com.fanta.fantaclientsdk.utils.SignUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;

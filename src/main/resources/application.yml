@@ -2,3 +2,8 @@ server:
   port: 8123
   servlet:
     context-path: /api
+
+fanta:
+  client:
+    access-key: fanta
+    secret-key: asdqwe

@@ -1,12 +1,16 @@
 package com.fanta.testinterface;
 
-import com.fanta.testinterface.client.FantaClient;
-import com.fanta.testinterface.model.User;
+import com.fanta.fantaclientsdk.client.FantaClient;
+import com.fanta.fantaclientsdk.model.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import javax.annotation.Resource;
+
 @SpringBootTest
 class TestInterfaceApplicationTests {
+    @Resource
+    public FantaClient fantaClient;
 
     @Test
     void contextLoads() {
@@ -14,7 +18,6 @@ class TestInterfaceApplicationTests {
 
     @Test
     void test1() {
-        FantaClient fantaClient = new FantaClient("fanta", "asdqwe");
         String namename = fantaClient.getNameByGet("namename");
         System.out.println(namename);
         String res2 = fantaClient.getNameByPost("namenameasdasd");
