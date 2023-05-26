@@ -1,15 +1,16 @@
 package com.fanta.testinterface.client;
 
+import cn.hutool.core.util.RandomUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONUtil;
 import com.fanta.testinterface.model.User;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.fanta.testinterface.utils.SignUtils.getSign;
 
 public class FantaClient {
     private String accessKey;
@@ -29,7 +30,7 @@ public class FantaClient {
         return result;
     }
 
-    public String getNameByPost(@RequestParam("name") String name) {
+    public String getNameByPost(String name) {
         HashMap<String, Object> paramMap = new HashMap<>();
         paramMap.put("name", name);
         String result = HttpUtil.post("http://localhost:8123/api/name", paramMap);
@@ -37,11 +38,11 @@ public class FantaClient {
         return result;
     }
 
-    public String getUserNameByPost(@RequestBody User user) {
+    public String getUserNameByPost(User user) {
         String json = JSONUtil.toJsonStr(user);
 
         HttpResponse response = HttpRequest.post("http://localhost:8123/api/name/username")
-                .addHeaders(getHeaderMap())
+                .addHeaders(getHeaderMap(json))
                 .body(json)
                 .execute();
         System.out.println(response.getStatus());
@@ -51,10 +52,15 @@ public class FantaClient {
 
     }
 
-    private Map<String, String> getHeaderMap() {
+
+    private Map<String, String> getHeaderMap(String body) {
         HashMap<String, String> hashMap = new HashMap<>();
         hashMap.put("accessKey", accessKey);
-        hashMap.put("secretKey", secretKey);
+//        hashMap.put("secretKey", secretKey);
+        hashMap.put("sign", getSign(body, secretKey));
+        hashMap.put("body", body);
+        hashMap.put("nonce", RandomUtil.randomNumbers(4));
+        hashMap.put("timestamp", String.valueOf(System.currentTimeMillis() / 1000));
         return hashMap;
     }
 }
