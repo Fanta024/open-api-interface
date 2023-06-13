@@ -7,3 +7,12 @@ fanta:
   client:
     access-key: fanta
     secret-key: asdqwe
+
+dubbo:
+  application:
+    name: dubbo-spring-boot-consumer
+  registry:
+    address: nacos://localhost:8848
+  protocol:
+    name: dubbo
+    port: -1

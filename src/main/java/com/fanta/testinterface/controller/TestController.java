@@ -1,7 +1,10 @@
 package com.fanta.testinterface.controller;
 
-import com.fanta.fantaclientsdk.model.User;
+import com.fanta.fantaapicommon.model.entity.ClientUser;
+import com.fanta.fantaapicommon.model.entity.User;
+import com.fanta.fantaapicommon.service.InnerUserService;
 import com.fanta.fantaclientsdk.utils.SignUtils;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -9,7 +12,16 @@ import javax.servlet.http.HttpServletRequest;
 @RestController
 @RequestMapping("/name")
 public class TestController {
-    @GetMapping
+    private static final long FIVE_TIME = 5 * 60L;
+    @DubboReference
+    private InnerUserService innerUserService;
+
+    @GetMapping("/test")
+    public String test(String name) {
+        return "GET 你的名字是" + name;
+    }
+
+    @GetMapping("/")
     public String getNameByGet(String name) {
         return "GET 你的名字是" + name;
     }
@@ -20,7 +32,7 @@ public class TestController {
     }
 
     @PostMapping("/username")
-    public String getUserNameByPost(@RequestBody User User, HttpServletRequest request) {
+    public String getUserNameByPost(@RequestBody ClientUser clientUser, HttpServletRequest request) {
         String accessKey = request.getHeader("accessKey");
 //        String secretKey = request.getHeader("secretKey");
         String sign = request.getHeader("sign");
@@ -28,21 +40,21 @@ public class TestController {
         String timestamp = request.getHeader("timestamp");
         String body = request.getHeader("body");
 
-        //todo 从数据库中查询 ak 是否分配给用户
-        if (!accessKey.equals("fanta")) {
+        //从数据库中查询 ak 是否分配给用户
+        User user = innerUserService.getInvokeUser(accessKey);
+        if (user.getAccessKey() != null && user.getAccessKey().isEmpty()) {
             throw new RuntimeException("无权限");
         }
-        //todo 签名校验  例如 时间不超过五分钟
-//        if(timestamp){
-//
-//        }
-        // todo 从数据库查出 sk
-        String serverSign = SignUtils.getSign(body, "asdqwe");
-
+        //时间不超过五分钟
+        if ((System.currentTimeMillis() / 1000) - Long.parseLong(timestamp) >= FIVE_TIME) {
+            throw new RuntimeException("已过期");
+        }
+        //数据库查出 sk
+        String serverSign = SignUtils.getSign(body, user.getSecretKey());
         //校验签名是否一致
         if (!serverSign.equals(sign)) {
             throw new RuntimeException("无权限");
         }
-        return "POST 你的用户名字是" + User.getUsername();
+        return "POST 你的用户名字是" + clientUser.getUsername();
     }
 }
